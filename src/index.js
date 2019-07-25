@@ -8,6 +8,7 @@ const typeDefs = `
     releaseYear: Int
     isStock: Boolean!
     drink: Drink!
+    greeting(name: String): String!
   }
 
   type Drink {
@@ -46,6 +47,13 @@ const resolvers = {
 				isStock: true,
 				rating: 4.82
 			};
+		},
+		greeting(parent, args, ctx, info) {
+			if (args.name) {
+				return `Hello ${args.name}`;
+			} else {
+				return 'Hello Someone!!!!';
+			}
 		}
 	}
 };
