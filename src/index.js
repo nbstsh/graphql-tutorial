@@ -9,6 +9,8 @@ const typeDefs = `
     isStock: Boolean!
     drink: Drink!
     greeting(name: String): String!
+    grades: [Int!]!
+    users: [User!]!
   }
 
   type Drink {
@@ -18,6 +20,12 @@ const typeDefs = `
     size: String!
     isStock: Boolean!
     rating: Float!
+  }
+  
+  type User {
+    id: ID!
+    name: String!
+    age: Int
   }
 `;
 
@@ -54,6 +62,27 @@ const resolvers = {
 			} else {
 				return 'Hello Someone!!!!';
 			}
+		},
+		grades() {
+			return [90, 10, 38, 100, 11];
+		},
+		users() {
+			const user1 = {
+				id: 1,
+				name: 'Takeshi',
+				age: 18
+			};
+			const user2 = {
+				id: 2,
+				name: 'Haruka'
+			};
+			const user3 = {
+				id: 3,
+				name: 'KOUSUKE',
+				age: 47
+			};
+
+			return [user1, user2, user3];
 		}
 	}
 };
