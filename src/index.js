@@ -11,6 +11,8 @@ const typeDefs = `
     greeting(name: String): String!
     grades: [Int!]!
     users: [User!]!
+    posts: [Post!]!
+    post(id: ID!): Post
   }
 
   type Drink {
@@ -25,9 +27,60 @@ const typeDefs = `
   type User {
     id: ID!
     name: String!
+    email: String!
     age: Int
   }
+
+  type Post {
+    id: ID!
+    title: String!
+    body: String
+    published: Boolean!
+    author: User!
+  }
+  
 `;
+
+const dummyUsers = [
+	{
+		id: 1,
+		name: 'Takeshi',
+		age: 18
+	},
+	{
+		id: 2,
+		name: 'Haruka'
+	},
+	{
+		id: 3,
+		name: 'KOUSUKE',
+		age: 47
+	}
+];
+
+const dummyPosts = [
+	{
+		id: 'post1',
+		title: 'This is sample post 1!',
+		body: 'Hello world!!!',
+		published: true,
+		author: 1
+	},
+	{
+		id: 'post2',
+		title: 'This is sample post 2!',
+		body: 'Hello world!!!',
+		published: true,
+		author: 1
+	},
+	{
+		id: 'post3',
+		title: 'This is sample post 3!',
+		body: 'Hello world!!!',
+		published: false,
+		author: 2
+	}
+];
 
 const resolvers = {
 	Query: {
@@ -67,22 +120,18 @@ const resolvers = {
 			return [90, 10, 38, 100, 11];
 		},
 		users() {
-			const user1 = {
-				id: 1,
-				name: 'Takeshi',
-				age: 18
-			};
-			const user2 = {
-				id: 2,
-				name: 'Haruka'
-			};
-			const user3 = {
-				id: 3,
-				name: 'KOUSUKE',
-				age: 47
-			};
-
-			return [user1, user2, user3];
+			return dummyUsers;
+		},
+		posts() {
+			return dummyPosts;
+		},
+		post(parent, args, ctx, info) {
+			return dummyPosts.find(post => post.id === args.id);
+		}
+	},
+	Post: {
+		author(parent, args, ctx, info) {
+			return dummyUsers.find(user => user.id === parent.author);
 		}
 	}
 };
