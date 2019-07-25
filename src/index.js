@@ -13,6 +13,8 @@ const typeDefs = `
     users: [User!]!
     posts: [Post!]!
     post(id: ID!): Post
+    comments: [Comment!]!
+    comment(id: ID!): Comment
   }
 
   type Drink {
@@ -30,6 +32,7 @@ const typeDefs = `
     email: String!
     age: Int
     posts: [Post!]!
+    comments: [Comment!]!
   }
 
   type Post {
@@ -38,6 +41,15 @@ const typeDefs = `
     body: String
     published: Boolean!
     author: User!
+    comments: [Comment!]!
+  }
+
+  type Comment {
+    id: ID!
+    user: User!
+    post: Post!
+    text: String!
+    createdAt: String! 
   }
   
 `;
@@ -46,16 +58,19 @@ const dummyUsers = [
 	{
 		id: 1,
 		name: 'Takeshi',
-		age: 18
+		age: 18,
+		email: 'takeshi@gmail.com'
 	},
 	{
 		id: 2,
-		name: 'Haruka'
+		name: 'Haruka',
+		email: 'haruka@gmail.com'
 	},
 	{
 		id: 3,
 		name: 'KOUSUKE',
-		age: 47
+		age: 47,
+		email: 'KOUSUKE@gmail.com'
 	}
 ];
 
@@ -80,6 +95,30 @@ const dummyPosts = [
 		body: 'Hello world!!!',
 		published: false,
 		author: 2
+	}
+];
+
+const dummyComments = [
+	{
+		id: 'comment1',
+		user: 1,
+		post: 'post1',
+		text: 'Sample Comment !!!!!',
+		createdAt: '2019-07-29T12:07:55.146Z'
+	},
+	{
+		id: 'comment2',
+		user: 2,
+		post: 'post1',
+		text: 'Sample Comment !!!!!',
+		createdAt: '2019-07-25T12:07:55.146Z'
+	},
+	{
+		id: 'comment3',
+		user: 1,
+		post: 'post2',
+		text: 'Sample Comment !!!!!',
+		createdAt: '2019-07-23T12:07:55.146Z'
 	}
 ];
 
@@ -128,16 +167,36 @@ const resolvers = {
 		},
 		post(parent, args, ctx, info) {
 			return dummyPosts.find(post => post.id === args.id);
+		},
+		comments() {
+			return dummyComments;
+		},
+		comment(parent, args, ctx, info) {
+			return dummyComments.find(comment => comment.id === args.id);
 		}
 	},
 	Post: {
 		author(parent, args, ctx, info) {
 			return dummyUsers.find(user => user.id === parent.author);
+		},
+		comments(parent, args, ctx, info) {
+			return dummyComments.filter(comment => comment.post === parent.id);
 		}
 	},
 	User: {
 		posts(parent, args, ctx, info) {
 			return dummyPosts.filter(post => post.author === parent.id);
+		},
+		comments(parent, args, ctx, info) {
+			return dummyComments.filter(comment => comment.user === parent.id);
+		}
+	},
+	Comment: {
+		user(parent, args, ctx, info) {
+			return dummyUsers.find(user => user.id === parent.user);
+		},
+		post(parent, args, ctx, info) {
+			return dummyPosts.find(post => post.id === parent.post);
 		}
 	}
 };
