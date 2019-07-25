@@ -7,6 +7,16 @@ const typeDefs = `
     price: Float!
     releaseYear: Int
     isStock: Boolean!
+    drink: Drink!
+  }
+
+  type Drink {
+    id: ID!
+    name: String!
+    price: Int! 
+    size: String!
+    isStock: Boolean!
+    rating: Float!
   }
 `;
 
@@ -26,6 +36,16 @@ const resolvers = {
 		},
 		isStock() {
 			return false;
+		},
+		drink() {
+			return {
+				id: '1234',
+				name: 'Iced Coffee',
+				price: 356,
+				size: 'Tall',
+				isStock: true,
+				rating: 4.82
+			};
 		}
 	}
 };
