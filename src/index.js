@@ -1,59 +1,7 @@
 import { GraphQLServer } from 'graphql-yoga';
+import uuidv4 from 'uuid/v4';
 
-const typeDefs = `
-  type Query {
-    id: ID
-    title: String!
-    price: Float!
-    releaseYear: Int
-    isStock: Boolean!
-    drink: Drink!
-    greeting(name: String): String!
-    grades: [Int!]!
-    users: [User!]!
-    posts: [Post!]!
-    post(id: ID!): Post
-    comments: [Comment!]!
-    comment(id: ID!): Comment
-  }
-
-  type Drink {
-    id: ID!
-    name: String!
-    price: Int! 
-    size: String!
-    isStock: Boolean!
-    rating: Float!
-  }
-  
-  type User {
-    id: ID!
-    name: String!
-    email: String!
-    age: Int
-    posts: [Post!]!
-    comments: [Comment!]!
-  }
-
-  type Post {
-    id: ID!
-    title: String!
-    body: String
-    published: Boolean!
-    author: User!
-    comments: [Comment!]!
-  }
-
-  type Comment {
-    id: ID!
-    user: User!
-    post: Post!
-    text: String!
-    createdAt: String! 
-  }
-  
-`;
-
+//////////////////////////////////////////// dummy data
 const dummyUsers = [
 	{
 		id: 1,
@@ -122,6 +70,66 @@ const dummyComments = [
 	}
 ];
 
+////////////////////////////////////////////// typeDefs
+const typeDefs = `
+  type Query {
+    id: ID
+    title: String!
+    price: Float!
+    releaseYear: Int
+    isStock: Boolean!
+    drink: Drink!
+    greeting(name: String): String!
+    grades: [Int!]!
+    users: [User!]!
+    posts: [Post!]!
+    post(id: ID!): Post
+    comments: [Comment!]!
+    comment(id: ID!): Comment
+  }
+
+  type Drink {
+    id: ID!
+    name: String!
+    price: Int! 
+    size: String!
+    isStock: Boolean!
+    rating: Float!
+  }
+  
+  type User {
+    id: ID!
+    name: String!
+    email: String!
+    age: Int
+    posts: [Post!]!
+    comments: [Comment!]!
+  }
+
+  type Post {
+    id: ID!
+    title: String!
+    body: String
+    published: Boolean!
+    author: User!
+    comments: [Comment!]!
+  }
+
+  type Comment {
+    id: ID!
+    user: User!
+    post: Post!
+    text: String!
+    createdAt: String! 
+	}
+	
+	type Mutation {
+		createUser(name: String!, email: String!, age: Int): User!
+	}
+  
+`;
+
+////////////////////////////////////////////// resolvers
 const resolvers = {
 	Query: {
 		id() {
@@ -197,6 +205,27 @@ const resolvers = {
 		},
 		post(parent, args, ctx, info) {
 			return dummyPosts.find(post => post.id === parent.post);
+		}
+	},
+
+	Mutation: {
+		createUser(parent, args, ctx, info) {
+			const { name, email, age } = args;
+
+			const isEmailTaken = dummyUsers.some(user => user.email === email);
+
+			if (isEmailTaken) throw new Error('The email is already taken!');
+
+			const user = {
+				id: uuidv4(),
+				name,
+				email,
+				age
+			};
+
+			dummyUsers.push(user);
+
+			return user;
 		}
 	}
 };
