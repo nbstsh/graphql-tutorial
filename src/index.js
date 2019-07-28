@@ -8,15 +8,15 @@ const dummyUsers = [
 		name: 'Takeshi',
 		age: 18,
 		email: 'takeshi@gmail.com',
-		posts: [],
-		comments: []
+		posts: ['post1', 'post2'],
+		comments: ['comment1', 'comment3']
 	},
 	{
 		id: '2',
 		name: 'Haruka',
 		email: 'haruka@gmail.com',
-		posts: [],
-		comments: []
+		posts: ['post3'],
+		comments: ['comment2']
 	},
 	{
 		id: '3',
@@ -34,47 +34,68 @@ const dummyPosts = [
 		title: 'This is sample post 1!',
 		body: 'Hello world!!!',
 		published: true,
-		author: 1
+		author: '1',
+		comments: ['comment1', 'comment2']
 	},
 	{
 		id: 'post2',
 		title: 'This is sample post 2!',
 		body: 'Hello world!!!',
 		published: true,
-		author: 1
+		author: '1',
+		comments: ['comment3']
 	},
 	{
 		id: 'post3',
 		title: 'This is sample post 3!',
 		body: 'Hello world!!!',
 		published: false,
-		author: 2
+		author: '2',
+		comments: []
 	}
 ];
 
 const dummyComments = [
 	{
 		id: 'comment1',
-		user: 1,
+		user: '1',
 		post: 'post1',
 		text: 'Sample Comment !!!!!',
 		createdAt: '2019-07-29T12:07:55.146Z'
 	},
 	{
 		id: 'comment2',
-		user: 2,
+		user: '2',
 		post: 'post1',
 		text: 'Sample Comment !!!!!',
 		createdAt: '2019-07-25T12:07:55.146Z'
 	},
 	{
 		id: 'comment3',
-		user: 1,
+		user: '1',
 		post: 'post2',
 		text: 'Sample Comment !!!!!',
 		createdAt: '2019-07-23T12:07:55.146Z'
 	}
 ];
+
+const deletePost = id => {
+	const index = dummyPosts.findIndex(post => post.id === id);
+	if (index === -1) return;
+
+	// delete post
+	const { comments } = dummyPosts.splice(index, 1)[0];
+
+	// delete comments which belong to the post
+	comments.forEach(deleteComment);
+};
+
+const deleteComment = id => {
+	const index = dummyComments.findIndex(comment => comment.id === id);
+	if (index === -1) return;
+
+	dummyComments.splice(index, 1);
+};
 
 ////////////////////////////////////////////// typeDefs
 const typeDefs = `
@@ -132,6 +153,7 @@ const typeDefs = `
 	type Mutation {
 		createUser(data: CreateUserInput!): User!
 		createPost(data: CreatePostInput!): Post!
+		deleteUser(id: ID!): User!
 	}
 
 	input CreateUserInput {
@@ -146,7 +168,8 @@ const typeDefs = `
 		published: Boolean!
 		author: ID!
 	}
-  
+	
+	
 `;
 
 ////////////////////////////////////////////// resolvers
@@ -252,7 +275,8 @@ const resolvers = {
 
 			const post = {
 				id: uuidv4(),
-				...data
+				...data,
+				comments: []
 			};
 
 			dummyPosts.push(post);
@@ -260,6 +284,20 @@ const resolvers = {
 			user.posts.push(data.author);
 
 			return post;
+		},
+		deleteUser(parent, { id }, ctx, info) {
+			const index = dummyUsers.findIndex(user => user.id === id);
+			if (index === -1) throw new Error('User with given id not found!');
+
+			// delete user from the dummy array
+			const user = dummyUsers.splice(index, 1)[0];
+
+			const { posts, comments } = user;
+
+			posts.forEach(deletePost);
+			comments.forEach(deleteComment);
+
+			return user;
 		}
 	}
 };
