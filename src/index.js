@@ -7,18 +7,24 @@ const dummyUsers = [
 		id: '1',
 		name: 'Takeshi',
 		age: 18,
-		email: 'takeshi@gmail.com'
+		email: 'takeshi@gmail.com',
+		posts: [],
+		comments: []
 	},
 	{
 		id: '2',
 		name: 'Haruka',
-		email: 'haruka@gmail.com'
+		email: 'haruka@gmail.com',
+		posts: [],
+		comments: []
 	},
 	{
 		id: '3',
 		name: 'KOUSUKE',
 		age: 47,
-		email: 'KOUSUKE@gmail.com'
+		email: 'KOUSUKE@gmail.com',
+		posts: [],
+		comments: []
 	}
 ];
 
@@ -231,7 +237,9 @@ const resolvers = {
 
 			const user = {
 				id: uuidv4(),
-				...data
+				...data,
+				posts: [],
+				comments: []
 			};
 
 			dummyUsers.push(user);
@@ -239,8 +247,8 @@ const resolvers = {
 			return user;
 		},
 		createPost(parent, { data }, ctx, info) {
-			const userExists = dummyUsers.some(user => user.id === data.author);
-			if (!userExists) throw new Error('User not exists!');
+			const user = dummyUsers.find(user => user.id === data.author);
+			if (!user) throw new Error('User not exists!');
 
 			const post = {
 				id: uuidv4(),
@@ -248,6 +256,8 @@ const resolvers = {
 			};
 
 			dummyPosts.push(post);
+
+			user.posts.push(data.author);
 
 			return post;
 		}
