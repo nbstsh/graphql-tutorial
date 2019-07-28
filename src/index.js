@@ -84,17 +84,19 @@ const deletePost = id => {
 	if (index === -1) return;
 
 	// delete post
-	const { comments } = dummyPosts.splice(index, 1)[0];
+	const deletedPost = dummyPosts.splice(index, 1)[0];
 
 	// delete comments which belong to the post
-	comments.forEach(deleteComment);
+	deletedPost.comments.forEach(deleteComment);
+
+	return deletedPost;
 };
 
 const deleteComment = id => {
 	const index = dummyComments.findIndex(comment => comment.id === id);
 	if (index === -1) return;
 
-	dummyComments.splice(index, 1);
+	return dummyComments.splice(index, 1)[0];
 };
 
 ////////////////////////////////////////////// typeDefs
@@ -154,6 +156,8 @@ const typeDefs = `
 		createUser(data: CreateUserInput!): User!
 		createPost(data: CreatePostInput!): Post!
 		deleteUser(id: ID!): User!
+		deletePost(id: ID!): Post!
+		deleteComment(id: ID!): Comment!
 	}
 
 	input CreateUserInput {
@@ -290,14 +294,30 @@ const resolvers = {
 			if (index === -1) throw new Error('User with given id not found!');
 
 			// delete user from the dummy array
-			const user = dummyUsers.splice(index, 1)[0];
+			const deletedUser = dummyUsers.splice(index, 1)[0];
 
-			const { posts, comments } = user;
+			const { posts, comments } = deletedUser;
 
 			posts.forEach(deletePost);
 			comments.forEach(deleteComment);
 
-			return user;
+			return deletedUser;
+		},
+		deletePost(parent, { id }, ctx, info) {
+			const postExists = dummyPosts.some(post => post.id === id);
+			if (!postExists)
+				throw new Error('Post with given Id was not found!');
+
+			return deletePost(id);
+		},
+		deleteComment(parent, { id }, ctx, info) {
+			const commentExists = dummyComments.some(
+				comment => comment.id === id
+			);
+			if (!commentExists)
+				throw new Error('Comment with given id was not found!');
+
+			return deleteComment(id);
 		}
 	}
 };
