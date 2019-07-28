@@ -4,18 +4,18 @@ import uuidv4 from 'uuid/v4';
 //////////////////////////////////////////// dummy data
 const dummyUsers = [
 	{
-		id: 1,
+		id: '1',
 		name: 'Takeshi',
 		age: 18,
 		email: 'takeshi@gmail.com'
 	},
 	{
-		id: 2,
+		id: '2',
 		name: 'Haruka',
 		email: 'haruka@gmail.com'
 	},
 	{
-		id: 3,
+		id: '3',
 		name: 'KOUSUKE',
 		age: 47,
 		email: 'KOUSUKE@gmail.com'
@@ -125,6 +125,7 @@ const typeDefs = `
 	
 	type Mutation {
 		createUser(name: String!, email: String!, age: Int): User!
+		createPost(title: String!, body: String, published: Boolean!, author: ID!): Post!
 	}
   
 `;
@@ -210,22 +211,32 @@ const resolvers = {
 
 	Mutation: {
 		createUser(parent, args, ctx, info) {
-			const { name, email, age } = args;
-
-			const isEmailTaken = dummyUsers.some(user => user.email === email);
-
+			const isEmailTaken = dummyUsers.some(
+				user => user.email === args.email
+			);
 			if (isEmailTaken) throw new Error('The email is already taken!');
 
 			const user = {
 				id: uuidv4(),
-				name,
-				email,
-				age
+				...args
 			};
 
 			dummyUsers.push(user);
 
 			return user;
+		},
+		createPost(parent, args, ctx, info) {
+			const userExists = dummyUsers.some(user => user.id === args.author);
+			if (!userExists) throw new Error('User not exists!');
+
+			const post = {
+				id: uuidv4(),
+				...args
+			};
+
+			dummyPosts.push(post);
+
+			return post;
 		}
 	}
 };
