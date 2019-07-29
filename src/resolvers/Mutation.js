@@ -35,6 +35,24 @@ const Mutation = {
 
 		return post;
 	},
+	createComment(parent, { data }, { db }, info) {
+		const { dummyUsers, dummyPosts, dummyComments } = db;
+
+		const userExists = dummyUsers.some(user => user.id === data.user);
+		if (!userExists) throw new Error('User with given id was not found!');
+
+		const postExists = dummyPosts.some(post => post.id === data.post);
+		if (!postExists) throw new Error('Post with given id was not found!');
+
+		const comment = {
+			id: uuidv4(),
+			...data
+		};
+
+		dummyComments.push(comment);
+
+		return comment;
+	},
 	deleteUser(parent, { id }, { db }, info) {
 		const { dummyUsers, deletePost, deleteComment } = db;
 
@@ -84,6 +102,24 @@ const Mutation = {
 		}
 
 		return user;
+	},
+	updatePost(parent, { id, data }, { db }, info) {
+		const { dummyPosts } = db;
+		const post = dummyPosts.find(post => post.id === id);
+		if (!post) throw new Error('Post with given id was not found!');
+
+		Object.keys(data).forEach(key => (post[key] = data[key]));
+
+		return post;
+	},
+	updateComment(parent, { id, data }, { db }, info) {
+		const { dummyComments } = db;
+		const comment = dummyComments.find(comment => comment.id === id);
+		if (!comment) throw new Error('Comment with give id was not found!');
+
+		Object.keys(data).forEach(key => (comment[key] = data[key]));
+
+		return comment;
 	}
 };
 
