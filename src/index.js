@@ -1,103 +1,6 @@
 import { GraphQLServer } from 'graphql-yoga';
 import uuidv4 from 'uuid/v4';
-
-//////////////////////////////////////////// dummy data
-const dummyUsers = [
-	{
-		id: '1',
-		name: 'Takeshi',
-		age: 18,
-		email: 'takeshi@gmail.com',
-		posts: ['post1', 'post2'],
-		comments: ['comment1', 'comment3']
-	},
-	{
-		id: '2',
-		name: 'Haruka',
-		email: 'haruka@gmail.com',
-		posts: ['post3'],
-		comments: ['comment2']
-	},
-	{
-		id: '3',
-		name: 'KOUSUKE',
-		age: 47,
-		email: 'KOUSUKE@gmail.com',
-		posts: [],
-		comments: []
-	}
-];
-
-const dummyPosts = [
-	{
-		id: 'post1',
-		title: 'This is sample post 1!',
-		body: 'Hello world!!!',
-		published: true,
-		author: '1',
-		comments: ['comment1', 'comment2']
-	},
-	{
-		id: 'post2',
-		title: 'This is sample post 2!',
-		body: 'Hello world!!!',
-		published: true,
-		author: '1',
-		comments: ['comment3']
-	},
-	{
-		id: 'post3',
-		title: 'This is sample post 3!',
-		body: 'Hello world!!!',
-		published: false,
-		author: '2',
-		comments: []
-	}
-];
-
-const dummyComments = [
-	{
-		id: 'comment1',
-		user: '1',
-		post: 'post1',
-		text: 'Sample Comment !!!!!',
-		createdAt: '2019-07-29T12:07:55.146Z'
-	},
-	{
-		id: 'comment2',
-		user: '2',
-		post: 'post1',
-		text: 'Sample Comment !!!!!',
-		createdAt: '2019-07-25T12:07:55.146Z'
-	},
-	{
-		id: 'comment3',
-		user: '1',
-		post: 'post2',
-		text: 'Sample Comment !!!!!',
-		createdAt: '2019-07-23T12:07:55.146Z'
-	}
-];
-
-const deletePost = id => {
-	const index = dummyPosts.findIndex(post => post.id === id);
-	if (index === -1) return;
-
-	// delete post
-	const deletedPost = dummyPosts.splice(index, 1)[0];
-
-	// delete comments which belong to the post
-	deletedPost.comments.forEach(deleteComment);
-
-	return deletedPost;
-};
-
-const deleteComment = id => {
-	const index = dummyComments.findIndex(comment => comment.id === id);
-	if (index === -1) return;
-
-	return dummyComments.splice(index, 1)[0];
-};
+import * as db from './db';
 
 ////////////////////////////////////////////// typeDefs
 const typeDefs = `
@@ -214,49 +117,54 @@ const resolvers = {
 		grades() {
 			return [90, 10, 38, 100, 11];
 		},
-		users() {
-			return dummyUsers;
+		users(parent, args, { db }, info) {
+			return db.dummyUsers;
 		},
-		posts() {
-			return dummyPosts;
+		posts(parent, args, { db }, info) {
+			return db.dummyPosts;
 		},
-		post(parent, args, ctx, info) {
-			return dummyPosts.find(post => post.id === args.id);
+		post(parent, args, { db }, info) {
+			return db.dummyPosts.find(post => post.id === args.id);
 		},
-		comments() {
-			return dummyComments;
+		comments(parent, args, { db }, info) {
+			return db.dummyComments;
 		},
-		comment(parent, args, ctx, info) {
-			return dummyComments.find(comment => comment.id === args.id);
+		comment(parent, args, { db }, info) {
+			return db.dummyComments.find(comment => comment.id === args.id);
 		}
 	},
 	Post: {
-		author(parent, args, ctx, info) {
-			return dummyUsers.find(user => user.id === parent.author);
+		author(parent, args, { db }, info) {
+			return db.dummyUsers.find(user => user.id === parent.author);
 		},
-		comments(parent, args, ctx, info) {
-			return dummyComments.filter(comment => comment.post === parent.id);
+		comments(parent, args, { db }, info) {
+			return db.dummyComments.filter(
+				comment => comment.post === parent.id
+			);
 		}
 	},
 	User: {
-		posts(parent, args, ctx, info) {
-			return dummyPosts.filter(post => post.author === parent.id);
+		posts(parent, args, { db }, info) {
+			return db.dummyPosts.filter(post => post.author === parent.id);
 		},
-		comments(parent, args, ctx, info) {
-			return dummyComments.filter(comment => comment.user === parent.id);
+		comments(parent, args, { db }, info) {
+			return db.dummyComments.filter(
+				comment => comment.user === parent.id
+			);
 		}
 	},
 	Comment: {
-		user(parent, args, ctx, info) {
-			return dummyUsers.find(user => user.id === parent.user);
+		user(parent, args, { db }, info) {
+			return db.dummyUsers.find(user => user.id === parent.user);
 		},
-		post(parent, args, ctx, info) {
-			return dummyPosts.find(post => post.id === parent.post);
+		post(parent, args, { db }, info) {
+			return db.dummyPosts.find(post => post.id === parent.post);
 		}
 	},
 
 	Mutation: {
-		createUser(parent, { data }, ctx, info) {
+		createUser(parent, { data }, { db }, info) {
+			const { dummyUsers } = db;
 			const isEmailTaken = dummyUsers.some(
 				user => user.email === data.email
 			);
@@ -273,7 +181,9 @@ const resolvers = {
 
 			return user;
 		},
-		createPost(parent, { data }, ctx, info) {
+		createPost(parent, { data }, { db }, info) {
+			const { dummyUsers, dummyPosts } = db;
+
 			const user = dummyUsers.find(user => user.id === data.author);
 			if (!user) throw new Error('User not exists!');
 
@@ -289,7 +199,9 @@ const resolvers = {
 
 			return post;
 		},
-		deleteUser(parent, { id }, ctx, info) {
+		deleteUser(parent, { id }, { db }, info) {
+			const { dummyUsers, deletePost, deleteComment } = db;
+
 			const index = dummyUsers.findIndex(user => user.id === id);
 			if (index === -1) throw new Error('User with given id not found!');
 
@@ -303,14 +215,18 @@ const resolvers = {
 
 			return deletedUser;
 		},
-		deletePost(parent, { id }, ctx, info) {
+		deletePost(parent, { id }, { db }, info) {
+			const { dummyPosts, deletePost } = db;
+
 			const postExists = dummyPosts.some(post => post.id === id);
 			if (!postExists)
 				throw new Error('Post with given Id was not found!');
 
 			return deletePost(id);
 		},
-		deleteComment(parent, { id }, ctx, info) {
+		deleteComment(parent, { id }, { db }, info) {
+			const { dummyComments, deleteComment } = db;
+
 			const commentExists = dummyComments.some(
 				comment => comment.id === id
 			);
@@ -324,7 +240,10 @@ const resolvers = {
 
 const server = new GraphQLServer({
 	typeDefs,
-	resolvers
+	resolvers,
+	context: {
+		db
+	}
 });
 
 server.start(() => {
