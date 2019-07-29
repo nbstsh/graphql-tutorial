@@ -67,6 +67,23 @@ const Mutation = {
 			throw new Error('Comment with given id was not found!');
 
 		return deleteComment(id);
+	},
+	updateUser(parent, { id, data }, { db }, info) {
+		const { dummyUsers } = db;
+
+		const user = dummyUsers.find(user => user.id === id);
+		if (!user) throw new Error('User with given id was not found!');
+
+		const { name, email, age } = data;
+		if (name) user.name = name;
+		if (age) user.age = age;
+		if (email) {
+			const isEmailTaken = dummyUsers.some(user => user.email === email);
+			if (isEmailTaken) throw new Error('The email is already taken.');
+			user.email = email;
+		}
+
+		return user;
 	}
 };
 
