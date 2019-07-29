@@ -2,83 +2,6 @@ import { GraphQLServer } from 'graphql-yoga';
 import uuidv4 from 'uuid/v4';
 import * as db from './db';
 
-////////////////////////////////////////////// typeDefs
-const typeDefs = `
-  type Query {
-    id: ID
-    title: String!
-    price: Float!
-    releaseYear: Int
-    isStock: Boolean!
-    drink: Drink!
-    greeting(name: String): String!
-    grades: [Int!]!
-    users: [User!]!
-    posts: [Post!]!
-    post(id: ID!): Post
-    comments: [Comment!]!
-    comment(id: ID!): Comment
-  }
-
-  type Drink {
-    id: ID!
-    name: String!
-    price: Int! 
-    size: String!
-    isStock: Boolean!
-    rating: Float!
-  }
-  
-  type User {
-    id: ID!
-    name: String!
-    email: String!
-    age: Int
-    posts: [Post!]!
-    comments: [Comment!]!
-  }
-
-  type Post {
-    id: ID!
-    title: String!
-    body: String
-    published: Boolean!
-    author: User!
-    comments: [Comment!]!
-  }
-
-  type Comment {
-    id: ID!
-    user: User!
-    post: Post!
-    text: String!
-    createdAt: String! 
-	}
-	
-	type Mutation {
-		createUser(data: CreateUserInput!): User!
-		createPost(data: CreatePostInput!): Post!
-		deleteUser(id: ID!): User!
-		deletePost(id: ID!): Post!
-		deleteComment(id: ID!): Comment!
-	}
-
-	input CreateUserInput {
-		name: String!
-		email: String!
-		age: Int
-	}
-
-	input CreatePostInput {
-		title: String!
-		body: String
-		published: Boolean!
-		author: ID!
-	}
-	
-	
-`;
-
 ////////////////////////////////////////////// resolvers
 const resolvers = {
 	Query: {
@@ -239,7 +162,7 @@ const resolvers = {
 };
 
 const server = new GraphQLServer({
-	typeDefs,
+	typeDefs: './src/schema.graphql',
 	resolvers,
 	context: {
 		db
