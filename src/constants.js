@@ -1,0 +1,5 @@
+export const MUTATION_TYPE = {
+	CREATED: 'CREATED',
+	UPDATED: 'UPDATED',
+	DELETED: 'DELETED'
+};

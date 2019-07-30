@@ -1,4 +1,5 @@
 import uuidv4 from 'uuid/v4';
+import { MUTATION_TYPE } from '../constants';
 
 const Mutation = {
 	createUser(parent, { data }, { db }, info) {
@@ -33,7 +34,14 @@ const Mutation = {
 
 		user.posts.push(data.author);
 
-		pubsub.publish('post', { post });
+		if (post.published) {
+			pubsub.publish('post', {
+				post: {
+					mutation: MUTATION_TYPE.CREATED,
+					data: post
+				}
+			});
+		}
 
 		return post;
 	},
@@ -73,11 +81,20 @@ const Mutation = {
 
 		return deletedUser;
 	},
-	deletePost(parent, { id }, { db }, info) {
+	deletePost(parent, { id }, { db, pubsub }, info) {
 		const { dummyPosts, deletePost } = db;
 
-		const postExists = dummyPosts.some(post => post.id === id);
-		if (!postExists) throw new Error('Post with given Id was not found!');
+		const post = dummyPosts.find(post => post.id === id);
+		if (!post) throw new Error('Post with given Id was not found!');
+
+		if (post.published) {
+			pubsub.publish('post', {
+				post: {
+					mutation: MUTATION_TYPE.DELETED,
+					data: post
+				}
+			});
+		}
 
 		return deletePost(id);
 	},
@@ -107,12 +124,21 @@ const Mutation = {
 
 		return user;
 	},
-	updatePost(parent, { id, data }, { db }, info) {
+	updatePost(parent, { id, data }, { db, pubsub }, info) {
 		const { dummyPosts } = db;
 		const post = dummyPosts.find(post => post.id === id);
 		if (!post) throw new Error('Post with given id was not found!');
 
 		Object.keys(data).forEach(key => (post[key] = data[key]));
+
+		if (post.published) {
+			pubsub.publish('post', {
+				post: {
+					mutation: MUTATION_TYPE.UPDATED,
+					data: post
+				}
+			});
+		}
 
 		return post;
 	},
