@@ -12,6 +12,15 @@ const Subscription = {
 
 			return pubsub.asyncIterator('count');
 		}
+	},
+	comment: {
+		subscribe(parent, { postId }, { db, pubsub }, info) {
+			const { dummyPosts } = db;
+			const post = dummyPosts.find(post => post.id === postId);
+			if (!post) throw new Error('Post with given id was not found!');
+
+			return pubsub.asyncIterator(`comment ${post.id}`); // Channel name is `comment ${post.id}`
+		}
 	}
 };
 

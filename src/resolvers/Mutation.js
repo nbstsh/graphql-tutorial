@@ -35,7 +35,7 @@ const Mutation = {
 
 		return post;
 	},
-	createComment(parent, { data }, { db }, info) {
+	createComment(parent, { data }, { db, pubsub }, info) {
 		const { dummyUsers, dummyPosts, dummyComments } = db;
 
 		const userExists = dummyUsers.some(user => user.id === data.user);
@@ -48,6 +48,8 @@ const Mutation = {
 			id: uuidv4(),
 			...data
 		};
+
+		pubsub.publish(`comment ${data.post}`, { comment });
 
 		dummyComments.push(comment);
 
