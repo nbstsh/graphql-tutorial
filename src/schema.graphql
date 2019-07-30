@@ -96,3 +96,7 @@ input UpdatePostInput {
 input UpdateCommentInput {
 	text: String
 }
+
+type Subscription {
+	count: Int!
+}

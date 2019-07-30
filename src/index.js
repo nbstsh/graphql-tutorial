@@ -5,6 +5,7 @@ import Post from './resolvers/Post';
 import User from './resolvers/User';
 import Comment from './resolvers/Comment';
 import Mutation from './resolvers/Mutation';
+import Subscription from './resolvers/Subscription';
 
 import * as db from './db';
 
@@ -17,7 +18,8 @@ const server = new GraphQLServer({
 		Post,
 		User,
 		Comment,
-		Mutation
+		Mutation,
+		Subscription
 	},
 	context: {
 		db,
