@@ -21,6 +21,11 @@ const Subscription = {
 
 			return pubsub.asyncIterator(`comment ${post.id}`); // Channel name is `comment ${post.id}`
 		}
+	},
+	post: {
+		subscribe(parent, args, { db, pubsub }, info) {
+			return pubsub.asyncIterator(`post`);
+		}
 	}
 };
 

@@ -17,7 +17,7 @@ const Mutation = {
 
 		return user;
 	},
-	createPost(parent, { data }, { db }, info) {
+	createPost(parent, { data }, { db, pubsub }, info) {
 		const { dummyUsers, dummyPosts } = db;
 
 		const user = dummyUsers.find(user => user.id === data.author);
@@ -32,6 +32,8 @@ const Mutation = {
 		dummyPosts.push(post);
 
 		user.posts.push(data.author);
+
+		pubsub.publish('post', { post });
 
 		return post;
 	},
