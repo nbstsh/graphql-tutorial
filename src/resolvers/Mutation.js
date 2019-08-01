@@ -103,12 +103,18 @@ const Mutation = {
 
 		return deletePost(id);
 	},
-	deleteComment(parent, { id }, { db }, info) {
+	deleteComment(parent, { id }, { db, pubsub }, info) {
 		const { dummyComments, deleteComment } = db;
 
-		const commentExists = dummyComments.some(comment => comment.id === id);
-		if (!commentExists)
-			throw new Error('Comment with given id was not found!');
+		const comment = dummyComments.find(comment => comment.id === id);
+		if (!comment) throw new Error('Comment with given id was not found!');
+
+		pubsub.publish(`comment ${comment.post}`, {
+			comment: {
+				mutation: MUTATION_TYPE.DELETED,
+				data: comment
+			}
+		});
 
 		return deleteComment(id);
 	},
