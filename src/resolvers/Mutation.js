@@ -147,12 +147,19 @@ const Mutation = {
 
 		return post;
 	},
-	updateComment(parent, { id, data }, { db }, info) {
+	updateComment(parent, { id, data }, { db, pubsub }, info) {
 		const { dummyComments } = db;
 		const comment = dummyComments.find(comment => comment.id === id);
 		if (!comment) throw new Error('Comment with give id was not found!');
 
 		Object.keys(data).forEach(key => (comment[key] = data[key]));
+
+		pubsub.publish(`comment ${comment.post}`, {
+			comment: {
+				mutation: MUTATION_TYPE.UPDATED,
+				data: comment
+			}
+		});
 
 		return comment;
 	}
