@@ -99,8 +99,13 @@ input UpdateCommentInput {
 
 type Subscription {
 	count: Int!
-	comment(postId: ID!): Comment!
+	comment(postId: ID!): CommentSubscriptionPayload!
 	post: PostSubscriptionPayload!
+}
+
+type CommentSubscriptionPayload {
+	mutation: String!
+	data: Comment!
 }
 
 type PostSubscriptionPayload {

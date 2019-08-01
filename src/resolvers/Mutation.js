@@ -59,7 +59,12 @@ const Mutation = {
 			...data
 		};
 
-		pubsub.publish(`comment ${data.post}`, { comment });
+		pubsub.publish(`comment ${data.post}`, {
+			comment: {
+				mutation: MUTATION_TYPE.CREATED,
+				data: comment
+			}
+		});
 
 		dummyComments.push(comment);
 
